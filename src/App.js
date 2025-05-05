@@ -6,20 +6,23 @@ import Markets from "./pages/Markets";
 import Earn from "./pages/Earn";
 import Portfolio from "./pages/Portfolio";
 import Stake from "./pages/Stake";
+import { DemoProvider } from "./context/DemoContext";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/markets" element={<Markets />} />
-          <Route path="/earn" element={<Earn />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/stake" element={<Stake />} />
-        </Route>
-      </Routes>
-    </Router>
+    <DemoProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/markets" element={<Markets />} />
+            <Route path="/earn" element={<Earn />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/stake" element={<Stake />} />
+          </Route>
+        </Routes>
+      </Router>
+    </DemoProvider>
   );
 };
 

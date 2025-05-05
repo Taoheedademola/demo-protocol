@@ -63,17 +63,49 @@ const styles = {
     cursor: "pointer",
     fontSize: "0.85rem",
   },
+  modal: {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#1f1f2e",
+    padding: "2rem",
+    borderRadius: "10px",
+    zIndex: 1000,
+    color: "#fff",
+    minWidth: "300px",
+  },
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    zIndex: 999,
+  },
+  closeBtn: {
+    marginTop: "1rem",
+    backgroundColor: "#e11d48",
+    border: "none",
+    padding: "0.5rem 1rem",
+    color: "#fff",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
 };
 
 const Markets = () => {
   const [tokenData, setTokenData] = useState([]);
+  const [selectedToken, setSelectedToken] = useState(null);
+  const [modalAction, setModalAction] = useState("");
 
   useEffect(() => {
     axios
       .get("https://api.coingecko.com/api/v3/coins/markets", {
         params: {
           vs_currency: "usd",
-          ids: "bitcoin,ethereum,binancecoin,xrp,cardano,dogecoin,solana,litecoin,polygon,chainlink,uniswap,shiba-inu,stellar,tron,algorand,vechain,monero,cosmos,tezos,neo,ftx-token,ftm,axie-infinity,ethereum-classic,zcash,thorchain,imx,pancakeswap,elrond,bittorrent,terra,lisk,avax,eos,terra-luna,waves,theta-network,compound,near,bat,convex-finance,decet,gala,maker,yearn-finance,arweave,balancer,crypto-com-chain,curve-dao-token,1inch,synthetix,fantom", // List of 50 tokens
+          ids: "bitcoin,ethereum,binancecoin,xrp,cardano,dogecoin,solana,litecoin,polygon,chainlink,uniswap,shiba-inu,stellar,tron,algorand,vechain,monero,cosmos,tezos,neo,ftx-token,ftm,axie-infinity,ethereum-classic,zcash,thorchain,imx,pancakeswap,elrond,bittorrent,terra,lisk,avax,eos,terra-luna,waves,theta-network,compound,near,bat,convex-finance,decet,gala,maker,yearn-finance,arweave,balancer,crypto-com-chain,curve-dao-token,1inch,synthetix,fantom",
         },
       })
       .then((response) => {
@@ -93,6 +125,16 @@ const Markets = () => {
         console.error("Error fetching token data: ", error);
       });
   }, []);
+
+  const handleAction = (token, action) => {
+    setSelectedToken(token);
+    setModalAction(action);
+  };
+
+  const closeModal = () => {
+    setSelectedToken(null);
+    setModalAction("");
+  };
 
   return (
     <div style={styles.container}>
@@ -126,12 +168,51 @@ const Markets = () => {
             <span>{token.borrowed}</span>
             <span>{token.collateral ? "✅" : "❌"}</span>
             <div style={styles.actionBtns}>
-              <button style={styles.button}>Supply</button>
-              <button style={styles.button}>Borrow</button>
+              <button
+                style={styles.button}
+                onClick={() => handleAction(token, "Supply")}
+              >
+                Supply
+              </button>
+              <button
+                style={styles.button}
+                onClick={() => handleAction(token, "Borrow")}
+              >
+                Borrow
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {selectedToken && (
+        <>
+          <div style={styles.overlay} onClick={closeModal}></div>
+          <div style={styles.modal}>
+            <h3>
+              {modalAction} {selectedToken.symbol}
+            </h3>
+            <p>
+              <strong>Name:</strong> {selectedToken.name}
+            </p>
+            <p>
+              <strong>APY:</strong> {selectedToken.apy}
+            </p>
+            <p>
+              <strong>APR:</strong> {selectedToken.apr}
+            </p>
+            <p>
+              <strong>Supplied:</strong> {selectedToken.supplied}
+            </p>
+            <p>
+              <strong>Borrowed:</strong> {selectedToken.borrowed}
+            </p>
+            <button style={styles.closeBtn} onClick={closeModal}>
+              Close
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

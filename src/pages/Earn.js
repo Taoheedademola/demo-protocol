@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const styles = {
   container: {
@@ -52,37 +52,55 @@ const styles = {
   },
 };
 
-const earnOpportunities = [
-  {
-    pool: "ETH Staking",
-    apy: "5.25%",
-    balance: "0.00 ETH",
-  },
-  {
-    pool: "USDC Vault",
-    apy: "3.12%",
-    balance: "0.00 USDC",
-  },
-  {
-    pool: "DAI Flex Pool",
-    apy: "2.85%",
-    balance: "0.00 DAI",
-  },
-];
-
 const Earn = () => {
+  const [opportunities, setOpportunities] = useState([
+    { pool: "ETH Staking", apy: "5.25%", balance: 0, symbol: "ETH" },
+    { pool: "USDC Vault", apy: "3.12%", balance: 0, symbol: "USDC" },
+    { pool: "DAI Flex Pool", apy: "2.85%", balance: 0, symbol: "DAI" },
+  ]);
+
+  const handleAction = (index, type) => {
+    const amount = parseFloat(prompt(`Enter amount to ${type.toLowerCase()}:`));
+    if (isNaN(amount) || amount <= 0) return alert("Invalid amount!");
+
+    setOpportunities((prev) =>
+      prev.map((item, i) => {
+        if (i === index) {
+          const newBalance =
+            type === "Deposit"
+              ? item.balance + amount
+              : Math.max(0, item.balance - amount);
+          return { ...item, balance: newBalance };
+        }
+        return item;
+      })
+    );
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Earn</h2>
       <div style={styles.cardGrid}>
-        {earnOpportunities.map((item, idx) => (
+        {opportunities.map((item, idx) => (
           <div key={idx} style={styles.card}>
             <div style={styles.cardTitle}>{item.pool}</div>
             <div style={styles.apy}>APY: {item.apy}</div>
-            <div style={styles.balance}>Balance: {item.balance}</div>
+            <div style={styles.balance}>
+              Balance: {item.balance.toFixed(2)} {item.symbol}
+            </div>
             <div style={styles.actions}>
-              <button style={styles.button}>Deposit</button>
-              <button style={styles.button}>Withdraw</button>
+              <button
+                style={styles.button}
+                onClick={() => handleAction(idx, "Deposit")}
+              >
+                Deposit
+              </button>
+              <button
+                style={styles.button}
+                onClick={() => handleAction(idx, "Withdraw")}
+              >
+                Withdraw
+              </button>
             </div>
           </div>
         ))}

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext, useState } from "react";
+import { DemoContext } from "../context/DemoContext";
 
 const styles = {
   container: {
@@ -57,17 +58,58 @@ const styles = {
 };
 
 const Stake = () => {
+  const { balance, staked, stake, unstake } = useContext(DemoContext);
+
+  const [amount, setAmount] = useState("");
+
+  const handleStake = () => {
+    const num = parseFloat(amount);
+    if (!isNaN(num) && num > 0 && num <= balance) {
+      stake(num);
+      setAmount("");
+    } else {
+      alert("Invalid stake amount.");
+    }
+  };
+
+  const handleUnstake = () => {
+    const num = parseFloat(amount);
+    if (!isNaN(num) && num > 0 && num <= staked) {
+      unstake(num);
+      setAmount("");
+    } else {
+      alert("Invalid unstake amount.");
+    }
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Stake $DEMO</h2>
 
       <div style={styles.stakeBox}>
-        <label style={styles.label}>Amount to Stake</label>
-        <input type="number" placeholder="Enter amount" style={styles.input} />
+        <label style={styles.label}>
+          Wallet Balance: {balance.toFixed(2)} $DEMO
+        </label>
+        <label style={styles.label}>
+          Currently Staked: {staked.toFixed(2)} $DEMO
+        </label>
+
+        <label style={styles.label}>Amount to Stake/Unstake</label>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Enter amount"
+          style={styles.input}
+        />
 
         <div style={styles.buttonGroup}>
-          <button style={styles.button}>Stake</button>
-          <button style={styles.button}>Unstake</button>
+          <button style={styles.button} onClick={handleStake}>
+            Stake
+          </button>
+          <button style={styles.button} onClick={handleUnstake}>
+            Unstake
+          </button>
         </div>
 
         <div style={styles.rewards}>Rewards: 12.3 $DEMO</div>

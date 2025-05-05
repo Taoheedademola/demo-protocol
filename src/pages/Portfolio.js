@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const styles = {
   container: {
@@ -60,6 +60,55 @@ const styles = {
 };
 
 const Portfolio = () => {
+  const [portfolio, setPortfolio] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await new Promise((res) =>
+        setTimeout(
+          () =>
+            res({
+              totalSupplied: 12300,
+              totalBorrowed: 3100,
+              netAPY: 4.78,
+              suppliedAssets: [
+                {
+                  asset: "ETH",
+                  amount: "1.2 ETH",
+                  usdValue: "$3,500",
+                  apy: "5.25%",
+                },
+                {
+                  asset: "USDC",
+                  amount: "4000 USDC",
+                  usdValue: "$4,000",
+                  apy: "3.10%",
+                },
+              ],
+              borrowedAssets: [
+                {
+                  asset: "DAI",
+                  amount: "1500 DAI",
+                  usdValue: "$1,500",
+                  apr: "4.00%",
+                },
+              ],
+            }),
+          1000
+        )
+      );
+      setPortfolio(data);
+    };
+
+    fetchData();
+  }, []);
+
+  if (!portfolio) {
+    return (
+      <div style={{ color: "#fff", padding: "2rem" }}>Loading portfolio...</div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>My Portfolio</h2>
@@ -67,15 +116,19 @@ const Portfolio = () => {
       <div style={styles.summaryBox}>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Total Supplied</div>
-          <div style={styles.cardValue}>$12,300</div>
+          <div style={styles.cardValue}>
+            ${portfolio.totalSupplied.toLocaleString()}
+          </div>
         </div>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Total Borrowed</div>
-          <div style={styles.cardValue}>$3,100</div>
+          <div style={styles.cardValue}>
+            ${portfolio.totalBorrowed.toLocaleString()}
+          </div>
         </div>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Net APY</div>
-          <div style={styles.cardValue}>4.78%</div>
+          <div style={styles.cardValue}>{portfolio.netAPY}%</div>
         </div>
       </div>
 
@@ -89,16 +142,15 @@ const Portfolio = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style={styles.td}>ETH</td>
-            <td style={styles.td}>1.2 ETH ($3,500)</td>
-            <td style={styles.td}>5.25%</td>
-          </tr>
-          <tr>
-            <td style={styles.td}>USDC</td>
-            <td style={styles.td}>4,000 USDC ($4,000)</td>
-            <td style={styles.td}>3.10%</td>
-          </tr>
+          {portfolio.suppliedAssets.map((asset, idx) => (
+            <tr key={idx}>
+              <td style={styles.td}>{asset.asset}</td>
+              <td style={styles.td}>
+                {asset.amount} ({asset.usdValue})
+              </td>
+              <td style={styles.td}>{asset.apy}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -112,11 +164,15 @@ const Portfolio = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style={styles.td}>DAI</td>
-            <td style={styles.td}>1,500 DAI ($1,500)</td>
-            <td style={styles.td}>4.00%</td>
-          </tr>
+          {portfolio.borrowedAssets.map((asset, idx) => (
+            <tr key={idx}>
+              <td style={styles.td}>{asset.asset}</td>
+              <td style={styles.td}>
+                {asset.amount} ({asset.usdValue})
+              </td>
+              <td style={styles.td}>{asset.apr}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

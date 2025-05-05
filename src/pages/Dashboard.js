@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const styles = {
   container: {
@@ -58,9 +59,52 @@ const styles = {
     padding: "0.5rem 0",
     borderBottom: "1px solid #333",
   },
+  tableHeader1: {
+    display: "flex",
+    justifyContent: "space-between",
+    paddingBottom: "0.5rem",
+    borderBottom: "1px solid #444",
+    fontSize: "0.85rem",
+    color: "#aaa",
+  },
 };
 
 const Dashboard = () => {
+  const [tokenData, setTokenData] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("https://api.coingecko.com/api/v3/coins/markets", {
+        params: {
+          vs_currency: "usd",
+          ids: "bitcoin,ethereum,binancecoin,xrp,cardano,dogecoin,solana,litecoin,polygon,chainlink",
+        },
+      })
+      .then((response) => {
+        const data = response.data.map((token) => ({
+          symbol: token.symbol.toUpperCase(),
+          name: token.name,
+          apy: `${(Math.random() * (20 - 1) + 1).toFixed(2)}%`,
+          apr: `${(Math.random() * (10 - 0.5) + 0.5).toFixed(2)}%`,
+          supplied: parseFloat((Math.random() * (200 - 50) + 50).toFixed(2)),
+          borrowed: parseFloat((Math.random() * (50 - 5) + 5).toFixed(2)),
+          collateral: Math.random() > 0.5,
+        }));
+        setTokenData(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching token data: ", error);
+      });
+  }, []);
+
+  const totalSupplied = tokenData
+    .reduce((sum, t) => sum + t.supplied, 0)
+    .toFixed(2);
+  const totalBorrowed = tokenData
+    .reduce((sum, t) => sum + t.borrowed, 0)
+    .toFixed(2);
+  const netWorth = (totalSupplied - totalBorrowed).toFixed(2);
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Dashboard</h2>
@@ -68,22 +112,26 @@ const Dashboard = () => {
       <div style={styles.cardRow}>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Net Worth</div>
-          <div style={styles.cardValue}>$1200.00</div>
+          <div style={styles.cardValue}>${netWorth}M</div>
         </div>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Supply Balance</div>
-          <div style={styles.cardValue}>$0.00</div>
+          <div style={styles.cardValue}>${totalSupplied}M</div>
         </div>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Markets</div>
-          <div style={styles.cardValue}>No markets available</div>
+          <div style={styles.cardValue}>{tokenData.length} available</div>
         </div>
       </div>
 
       <div>
         <h3 style={styles.sectionTitle}>Your Supplies</h3>
         <div style={styles.table}>
-          <div style={styles.tableHeader}>Asset | APY | Collateral</div>
+          <div style={styles.tableHeader1}>
+            <span>Asset</span>
+            <span>Collateral</span>
+            <span>APY</span>
+          </div>
           <div style={styles.tableRow}>No supply positions</div>
         </div>
       </div>
@@ -91,7 +139,11 @@ const Dashboard = () => {
       <div>
         <h3 style={styles.sectionTitle}>Your Borrows</h3>
         <div style={styles.table}>
-          <div style={styles.tableHeader}>Asset | APY , APR | Collateral</div>
+          <div style={styles.tableHeader1}>
+            <span>Asset</span>
+            <span>APY , APR</span>
+            <span>Collateral</span>
+          </div>
           <div style={styles.tableRow}>No borrowing positions</div>
         </div>
       </div>
@@ -99,10 +151,22 @@ const Dashboard = () => {
       <div>
         <h3 style={styles.sectionTitle}>Markets</h3>
         <div style={styles.table}>
-          <div style={styles.tableHeader}>
-            Asset | Total Supplied | Total Borrowed | Deposit APY | Collateral
+          <div style={styles.tableHeader1}>
+            <span>Asset</span>
+            <span>Total Supplied</span>
+            <span>Total Borrowed</span>
+            <span>Deposit APY</span>
+            <span>Collateral</span>
           </div>
-          <div style={styles.tableRow}>ETH | 88.09M | 2.341M | 7.67% | ✅</div>
+          {tokenData.map((token, index) => (
+            <div style={styles.tableRow} key={index}>
+              <span>{token.symbol}</span>
+              <span>{token.supplied}M</span>
+              <span>{token.borrowed}M</span>
+              <span>{token.apy}</span>
+              <span>{token.collateral ? "✅" : "❌"}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
