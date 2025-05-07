@@ -38,6 +38,7 @@ const Sidebar = () => {
     { name: "Earn", path: "/earn" },
     { name: "Portfolio", path: "/portfolio" },
     { name: "Stake", path: "/stake" },
+    { name: "mintNFT", path: "/NFT" },
   ];
 
   return (

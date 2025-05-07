@@ -23,7 +23,7 @@ const WalletConnect = () => {
 
   // Disconnect wallet
   const disconnectWallet = () => {
-    setAccount(null); // Reset account to disconnect
+    setAccount(null);
   };
 
   // Check if wallet is already connected
@@ -52,7 +52,7 @@ const WalletConnect = () => {
             onClick={disconnectWallet}
             style={{
               padding: "0.5rem 1rem",
-              backgroundColor: "#f00", // Red button for disconnect
+              backgroundColor: "#f00",
               color: "#fff",
               border: "none",
               borderRadius: "4px",

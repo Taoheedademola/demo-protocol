@@ -7,6 +7,7 @@ import Earn from "./pages/Earn";
 import Portfolio from "./pages/Portfolio";
 import Stake from "./pages/Stake";
 import { DemoProvider } from "./context/DemoContext";
+import NftListingPage from "./pages/NFT";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
             <Route path="/earn" element={<Earn />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/stake" element={<Stake />} />
+            <Route path="/NFT" element={<NftListingPage />} />
           </Route>
         </Routes>
       </Router>
