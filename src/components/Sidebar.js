@@ -1,5 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { FaHome, FaChartLine, FaCoins, FaHandHoldingUsd } from "react-icons/fa";
+import { MdAccountBalanceWallet } from "react-icons/md";
+import { GiPaintBrush } from "react-icons/gi";
 
 const Sidebar = () => {
   const styles = {
@@ -14,6 +17,9 @@ const Sidebar = () => {
       boxSizing: "border-box",
     },
     link: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
       color: "#9CA3AF",
       padding: "0.75rem 1rem",
       textDecoration: "none",
@@ -33,12 +39,12 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { name: "Dashboard", path: "/" },
-    { name: "Markets", path: "/markets" },
-    { name: "Earn", path: "/earn" },
-    { name: "Portfolio", path: "/portfolio" },
-    { name: "Stake", path: "/stake" },
-    { name: "mintNFT", path: "/NFT" },
+    { name: "Dashboard", path: "/", icon: <FaHome /> },
+    { name: "Markets", path: "/markets", icon: <FaChartLine /> },
+    { name: "Earn", path: "/earn", icon: <FaCoins /> },
+    { name: "Portfolio", path: "/portfolio", icon: <MdAccountBalanceWallet /> },
+    { name: "Stake", path: "/stake", icon: <FaHandHoldingUsd /> },
+    { name: "mintNFT", path: "/NFT", icon: <GiPaintBrush /> },
   ];
 
   return (
@@ -52,6 +58,7 @@ const Sidebar = () => {
             isActive ? { ...styles.link, ...styles.activeLink } : styles.link
           }
         >
+          {item.icon}
           {item.name}
         </NavLink>
       ))}
