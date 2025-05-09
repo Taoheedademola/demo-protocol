@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from "react";
+
+
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { DemoContext } from "../context/DemoContext";
 
 const styles = {
   container: {
@@ -73,7 +76,7 @@ const styles = {
     borderRadius: "10px",
     zIndex: 1000,
     color: "#fff",
-    minWidth: "300px",
+    minWidth: "320px",
   },
   overlay: {
     position: "fixed",
@@ -93,12 +96,35 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
   },
+  input: {
+    width: "100%",
+    padding: "0.5rem",
+    marginTop: "0.75rem",
+    marginBottom: "1rem",
+    borderRadius: "6px",
+    border: "1px solid #555",
+    backgroundColor: "#2a2a3d",
+    color: "#fff",
+    fontSize: "1rem",
+  },
+  submitBtn: {
+    backgroundColor: "#16a34a",
+    border: "none",
+    padding: "0.5rem 1rem",
+    color: "#fff",
+    borderRadius: "6px",
+    cursor: "pointer",
+    marginRight: "0.5rem",
+  },
 };
 
 const Markets = () => {
   const [tokenData, setTokenData] = useState([]);
   const [selectedToken, setSelectedToken] = useState(null);
   const [modalAction, setModalAction] = useState("");
+  const [amount, setAmount] = useState("");
+
+  const { supply, withdraw, balance, supplied } = useContext(DemoContext);
 
   useEffect(() => {
     axios
@@ -112,10 +138,10 @@ const Markets = () => {
         const data = response.data.map((token) => ({
           symbol: token.symbol.toUpperCase(),
           name: token.name,
-          apy: `${(Math.random() * (20 - 1) + 1).toFixed(2)}%`,
-          apr: `${(Math.random() * (10 - 0.5) + 0.5).toFixed(2)}%`,
-          supplied: `${(Math.random() * (200 - 50) + 50).toFixed(2)}M`,
-          borrowed: `${(Math.random() * (50 - 5) + 5).toFixed(2)}M`,
+          apy: `${(Math.random() * 10 + 1).toFixed(2)}%`,
+          apr: `${(Math.random() * 5 + 0.5).toFixed(2)}%`,
+          supplied: `${(Math.random() * 100 + 10).toFixed(2)}M`,
+          borrowed: `${(Math.random() * 50 + 5).toFixed(2)}M`,
           collateral: Math.random() > 0.5,
           icon: token.image,
         }));
@@ -129,16 +155,30 @@ const Markets = () => {
   const handleAction = (token, action) => {
     setSelectedToken(token);
     setModalAction(action);
+    setAmount("");
   };
 
   const closeModal = () => {
     setSelectedToken(null);
     setModalAction("");
+    setAmount("");
+  };
+
+  const handleSubmit = () => {
+    if (modalAction === "Supply") {
+      supply(amount);
+    } else if (modalAction === "Withdraw") {
+      withdraw(amount);
+    }
+    closeModal();
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Markets</h2>
+      <p>
+        Balance: ${balance.toFixed(2)} | Supplied: ${supplied.toFixed(2)}
+      </p>
       <div style={styles.table}>
         <div style={styles.tableHeader}>
           <span>Asset</span>
@@ -176,9 +216,9 @@ const Markets = () => {
               </button>
               <button
                 style={styles.button}
-                onClick={() => handleAction(token, "Borrow")}
+                onClick={() => handleAction(token, "Withdraw")}
               >
-                Borrow
+                Withdraw
               </button>
             </div>
           </div>
@@ -192,24 +232,21 @@ const Markets = () => {
             <h3>
               {modalAction} {selectedToken.symbol}
             </h3>
-            <p>
-              <strong>Name:</strong> {selectedToken.name}
-            </p>
-            <p>
-              <strong>APY:</strong> {selectedToken.apy}
-            </p>
-            <p>
-              <strong>APR:</strong> {selectedToken.apr}
-            </p>
-            <p>
-              <strong>Supplied:</strong> {selectedToken.supplied}
-            </p>
-            <p>
-              <strong>Borrowed:</strong> {selectedToken.borrowed}
-            </p>
-            <button style={styles.closeBtn} onClick={closeModal}>
-              Close
-            </button>
+            <input
+              type="number"
+              placeholder={`Enter amount to ${modalAction.toLowerCase()}`}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              style={styles.input}
+            />
+            <div>
+              <button style={styles.submitBtn} onClick={handleSubmit}>
+                Confirm
+              </button>
+              <button style={styles.closeBtn} onClick={closeModal}>
+                Cancel
+              </button>
+            </div>
           </div>
         </>
       )}

@@ -3,28 +3,41 @@ import React, { createContext, useState } from "react";
 export const DemoContext = createContext();
 
 export const DemoProvider = ({ children }) => {
-  const [balance, setBalance] = useState(1000); // USDC or demo token
+  const [balance, setBalance] = useState(1000);
   const [supplied, setSupplied] = useState(0);
   const [borrowed, setBorrowed] = useState(0);
   const [staked, setStaked] = useState(0);
 
   const supply = (amount) => {
-    setBalance((prev) => prev - amount);
-    setSupplied((prev) => prev + amount);
+    const amt = parseFloat(amount);
+    if (amt > 0 && amt <= balance) {
+      setBalance((prev) => prev - amt);
+      setSupplied((prev) => prev + amt);
+    }
   };
 
-  const borrow = (amount) => {
-    setBorrowed((prev) => prev + amount);
+  const withdraw = (amount) => {
+    const amt = parseFloat(amount);
+    if (amt > 0 && amt <= supplied) {
+      setSupplied((prev) => prev - amt);
+      setBalance((prev) => prev + amt);
+    }
   };
 
   const stake = (amount) => {
-    setBalance((prev) => prev - amount);
-    setStaked((prev) => prev + amount);
+    const amt = parseFloat(amount);
+    if (amt > 0 && amt <= balance) {
+      setBalance((prev) => prev - amt);
+      setStaked((prev) => prev + amt);
+    }
   };
 
   const unstake = (amount) => {
-    setStaked((prev) => prev - amount);
-    setBalance((prev) => prev + amount);
+    const amt = parseFloat(amount);
+    if (amt > 0 && amt <= staked) {
+      setStaked((prev) => prev - amt);
+      setBalance((prev) => prev + amt);
+    }
   };
 
   return (
@@ -35,7 +48,7 @@ export const DemoProvider = ({ children }) => {
         borrowed,
         staked,
         supply,
-        borrow,
+        withdraw,
         stake,
         unstake,
       }}

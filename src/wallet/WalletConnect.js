@@ -21,12 +21,14 @@ const WalletConnect = () => {
     }
   };
 
-  // Disconnect wallet
+  useEffect(() => {
+    setAccount(null);
+  }, []);
+
   const disconnectWallet = () => {
     setAccount(null);
   };
 
-  // Check if wallet is already connected
   useEffect(() => {
     const checkConnection = async () => {
       if (window.ethereum) {
