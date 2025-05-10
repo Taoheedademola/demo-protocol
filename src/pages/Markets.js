@@ -122,14 +122,22 @@ const Markets = () => {
   const [modalAction, setModalAction] = useState("");
   const [amount, setAmount] = useState("");
 
-  const { supply, withdraw, balance, supplied } = useContext(DemoContext);
+  const {
+    balance = 0,
+    supplied = 0,
+    setBalance,
+    setSupplied,
+  } = useContext(DemoContext);
 
   useEffect(() => {
     axios
       .get("https://api.coingecko.com/api/v3/coins/markets", {
         params: {
           vs_currency: "usd",
-          ids: "bitcoin,ethereum,binancecoin,xrp,cardano,dogecoin,solana,litecoin,polygon,chainlink,uniswap,shiba-inu,stellar,tron,algorand,vechain,monero,cosmos,tezos,neo,ftx-token,ftm,axie-infinity,ethereum-classic,zcash,thorchain,imx,pancakeswap,elrond,bittorrent,terra,lisk,avax,eos,terra-luna,waves,theta-network,compound,near,bat,convex-finance,decet,gala,maker,yearn-finance,arweave,balancer,crypto-com-chain,curve-dao-token,1inch,synthetix,fantom",
+          order: "market_cap_desc",
+          per_page: 100,
+          page: 1,
+          sparkline: false,
         },
       })
       .then((response) => {
@@ -163,11 +171,19 @@ const Markets = () => {
   };
 
   const handleSubmit = () => {
-    if (modalAction === "Supply") {
-      supply(amount);
-    } else if (modalAction === "Withdraw") {
-      withdraw(amount);
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
     }
+
+    if (modalAction === "Supply") {
+      setSupplied((prev) => prev + numericAmount);
+      setBalance((prev) => prev - numericAmount);
+    } else if (modalAction === "Borrow") {
+      setBalance((prev) => prev + numericAmount);
+    }
+
     closeModal();
   };
 
@@ -175,7 +191,7 @@ const Markets = () => {
     <div style={styles.container}>
       <h2 style={styles.title}>Markets</h2>
       <p>
-        Balance: ${balance.toFixed(2)} | Supplied: ${supplied.toFixed(2)}
+        Balance: ${balance?.toFixed(2)} | Supplied: ${supplied?.toFixed(2)}
       </p>
       <div style={styles.table}>
         <div style={styles.tableHeader}>
@@ -214,9 +230,9 @@ const Markets = () => {
               </button>
               <button
                 style={styles.button}
-                onClick={() => handleAction(token, "Withdraw")}
+                onClick={() => handleAction(token, "Borrow")}
               >
-                Withdraw
+                Borrow
               </button>
             </div>
           </div>
