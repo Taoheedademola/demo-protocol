@@ -17,25 +17,27 @@ const styles = {
     backgroundColor: "#1f1f2e",
     borderRadius: "10px",
     padding: "1rem",
-    overflowX: "auto",
+    overflowX: "hidden", // prevent horizontal scroll
   },
   tableHeader: {
     display: "grid",
-    gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 2fr",
+    gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 2fr",
     paddingBottom: "0.5rem",
     borderBottom: "1px solid #444",
     fontSize: "0.85rem",
     color: "#aaa",
     alignItems: "center",
-    gap: "0.75rem",
+    gap: "0.5rem",
   },
   row: {
     display: "grid",
-    gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 2fr",
+    gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 2fr",
     alignItems: "center",
-    padding: "1rem 0",
+    padding: "0.75rem 0",
     borderBottom: "1px solid #333",
-    gap: "0.75rem",
+    gap: "0.5rem",
+    fontSize: "0.85rem",
+    wordBreak: "break-word", // prevent overflow text
   },
   asset: {
     display: "flex",
@@ -70,6 +72,7 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer",
     fontSize: "0.85rem",
+    whiteSpace: "nowrap",
   },
   modal: {
     position: "fixed",
@@ -120,6 +123,40 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
     marginRight: "0.5rem",
+  },
+
+  // Responsive styles
+  "@media screen and (max-width: 768px)": {
+    container: {
+      padding: "1rem",
+    },
+    title: {
+      fontSize: "1.5rem",
+      marginBottom: "1rem",
+    },
+    tableHeader: {
+      gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr 2fr",
+      fontSize: "0.75rem",
+      paddingBottom: "0.4rem",
+      gap: "0.25rem",
+    },
+    row: {
+      gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr 2fr",
+      fontSize: "0.75rem",
+      padding: "0.5rem 0",
+      gap: "0.25rem",
+    },
+    button: {
+      fontSize: "0.75rem",
+      padding: "0.4rem 0.75rem",
+    },
+    asset: {
+      gap: "0.3rem",
+    },
+    icon: {
+      width: "20px",
+      height: "20px",
+    },
   },
 };
 
@@ -204,16 +241,16 @@ const Markets = () => {
       <div style={styles.table}>
         <div style={styles.tableHeader}>
           <span>Asset</span>
-          <span>APY / APR</span>
-          <span>Supplied</span>
-          <span>Borrowed</span>
-          <span>Collateral</span>
+          <span>APY</span>
+          <span>Sup</span>
+          <span>Borr</span>
+          <span>Collat</span>
           <span>Actions</span>
         </div>
 
         {tokenData.map((token, index) => (
           <div style={styles.row} key={index}>
-            <div style={styles.asset}>
+            <div style={styles.asset} title={token.name}>
               <div style={styles.icon}>
                 <img
                   src={token.icon}
