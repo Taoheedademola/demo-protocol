@@ -1,10 +1,18 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaHome, FaChartLine, FaCoins, FaHandHoldingUsd } from "react-icons/fa";
+import {
+  FaHome,
+  FaChartLine,
+  FaCoins,
+  FaHandHoldingUsd,
+  FaTimes,
+} from "react-icons/fa";
 import { MdAccountBalanceWallet } from "react-icons/md";
 import { GiPaintBrush } from "react-icons/gi";
 
-const Sidebar = () => {
+const Sidebar = ({ closeSidebar }) => {
+  const isMobile = window.innerWidth <= 768;
+
   const styles = {
     container: {
       width: "220px",
@@ -15,6 +23,8 @@ const Sidebar = () => {
       flexDirection: "column",
       padding: "1rem",
       boxSizing: "border-box",
+      position: isMobile ? "absolute" : "static",
+      zIndex: isMobile ? 1000 : "auto",
     },
     link: {
       display: "flex",
@@ -31,10 +41,20 @@ const Sidebar = () => {
       backgroundColor: "#1F2937",
       color: "#fff",
     },
+    titleWrapper: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "1.5rem",
+    },
     title: {
       fontSize: "1.3rem",
       fontWeight: "bold",
-      marginBottom: "1.5rem",
+    },
+    closeBtn: {
+      fontSize: "1.5rem",
+      cursor: "pointer",
+      display: isMobile ? "block" : "none",
     },
   };
 
@@ -49,7 +69,10 @@ const Sidebar = () => {
 
   return (
     <aside style={styles.container}>
-      <div style={styles.title}>Demo Protocol</div>
+      <div style={styles.titleWrapper}>
+        <div style={styles.title}>Demo Protocol</div>
+        {isMobile && <FaTimes style={styles.closeBtn} onClick={closeSidebar} />}
+      </div>
       {navItems.map((item) => (
         <NavLink
           key={item.name}
@@ -57,6 +80,7 @@ const Sidebar = () => {
           style={({ isActive }) =>
             isActive ? { ...styles.link, ...styles.activeLink } : styles.link
           }
+          onClick={isMobile ? closeSidebar : undefined}
         >
           {item.icon}
           {item.name}

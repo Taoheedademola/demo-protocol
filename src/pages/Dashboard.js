@@ -3,27 +3,31 @@ import axios from "axios";
 
 const styles = {
   container: {
-    padding: "2rem",
+    padding: "1rem 1.5rem",
     color: "#fff",
+    maxWidth: "100vw",
+    overflowX: "hidden", // prevent horizontal scroll globally
   },
   title: {
     fontSize: "2rem",
     fontWeight: "bold",
-    marginBottom: "2rem",
+    marginBottom: "1.5rem",
   },
   cardRow: {
     display: "flex",
     gap: "1rem",
     marginBottom: "2rem",
-    flexWrap: "wrap",
+    flexWrap: "wrap", // wrap on small screens
+    justifyContent: "center",
   },
   card: {
-    flex: "1",
-    minWidth: "220px",
+    flex: "1 1 220px", // flexible basis + grow + shrink
+    maxWidth: "320px",
     backgroundColor: "#1f1f2e",
     borderRadius: "12px",
     padding: "1.5rem",
     boxShadow: "0 0 8px rgba(0,0,0,0.5)",
+    minWidth: 0, // prevent shrinking overflow
   },
   cardTitle: {
     fontSize: "0.875rem",
@@ -44,20 +48,7 @@ const styles = {
     backgroundColor: "#1f1f2e",
     borderRadius: "10px",
     padding: "1rem",
-    overflowX: "auto",
-  },
-  tableHeader: {
-    color: "#aaa",
-    fontSize: "0.85rem",
-    borderBottom: "1px solid #444",
-    paddingBottom: "0.5rem",
-    marginBottom: "0.5rem",
-  },
-  tableRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "0.5rem 0",
-    borderBottom: "1px solid #333",
+    overflowX: "hidden", // no horizontal scroll on table container
   },
   tableHeader1: {
     display: "flex",
@@ -66,6 +57,19 @@ const styles = {
     borderBottom: "1px solid #444",
     fontSize: "0.85rem",
     color: "#aaa",
+    flexWrap: "wrap", // wrap header on small screen
+  },
+  tableRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "0.5rem 0",
+    borderBottom: "1px solid #333",
+    flexWrap: "wrap", // wrap row on small screen
+  },
+  cell: {
+    flex: "1 1 100px", // flexible cells, min 100px
+    marginBottom: "0.4rem",
+    minWidth: 0,
   },
 };
 
@@ -128,11 +132,13 @@ const Dashboard = () => {
         <h3 style={styles.sectionTitle}>Your Supplies</h3>
         <div style={styles.table}>
           <div style={styles.tableHeader1}>
-            <span>Asset</span>
-            <span>Collateral</span>
-            <span>APY</span>
+            <span style={styles.cell}>Asset</span>
+            <span style={styles.cell}>Collateral</span>
+            <span style={styles.cell}>APY</span>
           </div>
-          <div style={styles.tableRow}>No supply positions</div>
+          <div style={styles.tableRow}>
+            <span style={styles.cell}>No supply positions</span>
+          </div>
         </div>
       </div>
 
@@ -140,11 +146,13 @@ const Dashboard = () => {
         <h3 style={styles.sectionTitle}>Your Borrows</h3>
         <div style={styles.table}>
           <div style={styles.tableHeader1}>
-            <span>Asset</span>
-            <span>APY , APR</span>
-            <span>Collateral</span>
+            <span style={styles.cell}>Asset</span>
+            <span style={styles.cell}>APY , APR</span>
+            <span style={styles.cell}>Collateral</span>
           </div>
-          <div style={styles.tableRow}>No borrowing positions</div>
+          <div style={styles.tableRow}>
+            <span style={styles.cell}>No borrowing positions</span>
+          </div>
         </div>
       </div>
 
@@ -152,19 +160,19 @@ const Dashboard = () => {
         <h3 style={styles.sectionTitle}>Markets</h3>
         <div style={styles.table}>
           <div style={styles.tableHeader1}>
-            <span>Asset</span>
-            <span>Total Supplied</span>
-            <span>Total Borrowed</span>
-            <span>Deposit APY</span>
-            <span>Collateral</span>
+            <span style={styles.cell}>Asset</span>
+            <span style={styles.cell}>Total Supplied</span>
+            <span style={styles.cell}>Total Borrowed</span>
+            <span style={styles.cell}>Deposit APY</span>
+            <span style={styles.cell}>Collateral</span>
           </div>
           {tokenData.map((token, index) => (
             <div style={styles.tableRow} key={index}>
-              <span>{token.symbol}</span>
-              <span>{token.supplied}M</span>
-              <span>{token.borrowed}M</span>
-              <span>{token.apy}</span>
-              <span>{token.collateral ? "✅" : "❌"}</span>
+              <span style={styles.cell}>{token.symbol}</span>
+              <span style={styles.cell}>{token.supplied}M</span>
+              <span style={styles.cell}>{token.borrowed}M</span>
+              <span style={styles.cell}>{token.apy}</span>
+              <span style={styles.cell}>{token.collateral ? "✅" : "❌"}</span>
             </div>
           ))}
         </div>

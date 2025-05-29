@@ -1,5 +1,6 @@
 import React from "react";
 import WalletConnect from "../wallet/WalletConnect";
+import { FaBars } from "react-icons/fa";
 
 const styles = {
   header: {
@@ -13,12 +14,37 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
   },
+  leftSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1rem",
+  },
+  hamburger: {
+    fontSize: "1.5rem",
+    cursor: "pointer",
+    display: "none",
+  },
+  title: {
+    fontSize: "1.25rem",
+    fontWeight: "bold",
+  },
 };
 
-const Header = () => {
+// Responsive toggle for hamburger
+const isMobile = window.innerWidth <= 768;
+
+const Header = ({ toggleSidebar }) => {
   return (
     <header style={styles.header}>
-      <div>Demo Protocol Dashboard</div>
+      <div style={styles.leftSection}>
+        {isMobile && (
+          <FaBars
+            style={{ ...styles.hamburger, display: "block" }}
+            onClick={toggleSidebar}
+          />
+        )}
+        <div style={styles.title}>Demo Protocol Dashboard</div>
+      </div>
       <WalletConnect />
     </header>
   );

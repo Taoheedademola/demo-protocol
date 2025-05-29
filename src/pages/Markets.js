@@ -20,24 +20,29 @@ const styles = {
     overflowX: "auto",
   },
   tableHeader: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 2fr",
     paddingBottom: "0.5rem",
     borderBottom: "1px solid #444",
     fontSize: "0.85rem",
     color: "#aaa",
+    alignItems: "center",
+    gap: "0.75rem",
   },
   row: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 2fr",
     alignItems: "center",
     padding: "1rem 0",
     borderBottom: "1px solid #333",
+    gap: "0.75rem",
   },
   asset: {
     display: "flex",
     alignItems: "center",
-    gap: "0.75rem",
+    gap: "0.5rem",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   },
   icon: {
     width: "24px",
@@ -47,6 +52,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   label: {
     fontWeight: "bold",
@@ -54,6 +60,7 @@ const styles = {
   actionBtns: {
     display: "flex",
     gap: "0.5rem",
+    flexWrap: "wrap",
   },
   button: {
     backgroundColor: "#4f46e5",
@@ -193,6 +200,7 @@ const Markets = () => {
       <p>
         Balance: ${balance?.toFixed(2)} | Supplied: ${supplied?.toFixed(2)}
       </p>
+
       <div style={styles.table}>
         <div style={styles.tableHeader}>
           <span>Asset</span>
