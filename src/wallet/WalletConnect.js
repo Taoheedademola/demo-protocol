@@ -1,54 +1,18 @@
-import React, { useEffect, useState } from "react";
+// components/WalletConnect.js
+"use client";
+
+import React from "react";
+import { useDemo } from "@/context/DemoContext";
 
 const WalletConnect = () => {
-  const [account, setAccount] = useState(null);
-  const [error, setError] = useState("");
-
-  // Connect wallet
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        setAccount(accounts[0]);
-        setError("");
-      } catch (err) {
-        setError("User denied wallet connection.");
-      }
-    } else {
-      setError("MetaMask not detected. Please install it.");
-    }
-  };
-
-  useEffect(() => {
-    setAccount(null);
-  }, []);
-
-  const disconnectWallet = () => {
-    setAccount(null);
-  };
-
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({
-          method: "eth_accounts",
-        });
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-        }
-      }
-    };
-    checkConnection();
-  }, []);
+  const { userAddress, connectWallet, disconnectWallet } = useDemo();
 
   return (
     <div style={{ textAlign: "right", padding: "1rem" }}>
-      {account ? (
+      {userAddress ? (
         <div>
           <span style={{ color: "#58a6ff", fontWeight: "bold" }}>
-            Connected: {account.substring(0, 6)}...{account.slice(-4)}
+            Connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
           </span>
           <button
             onClick={disconnectWallet}
@@ -62,7 +26,7 @@ const WalletConnect = () => {
               marginLeft: "1rem",
             }}
           >
-            Disconnect Wallet
+            Disconnect
           </button>
         </div>
       ) : (
@@ -79,11 +43,6 @@ const WalletConnect = () => {
         >
           Connect Wallet
         </button>
-      )}
-      {error && (
-        <p style={{ color: "red", fontSize: "0.9rem", marginTop: "0.5rem" }}>
-          {error}
-        </p>
       )}
     </div>
   );

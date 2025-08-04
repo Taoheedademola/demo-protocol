@@ -6,8 +6,8 @@ import Markets from "./pages/Markets";
 import Earn from "./pages/Earn";
 import Portfolio from "./pages/Portfolio";
 import Stake from "./pages/Stake";
-import { DemoProvider } from "./context/DemoContext";
 import NftListingPage from "./pages/NFT";
+import { DemoProvider } from "./context/DemoContext";
 
 const App = () => {
   return (

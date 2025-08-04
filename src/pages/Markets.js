@@ -1,23 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { DemoContext } from "../context/DemoContext";
+import { useDemo } from "../context/DemoContext";
 
 const styles = {
-  container: {
-    padding: "2rem",
-    color: "#fff",
-  },
-  title: {
-    fontSize: "2rem",
-    fontWeight: "bold",
-    marginBottom: "2rem",
-  },
+  container: { padding: "2rem", color: "#fff" },
+  title: { fontSize: "2rem", fontWeight: "bold", marginBottom: "2rem" },
   table: {
     width: "100%",
     backgroundColor: "#1f1f2e",
     borderRadius: "10px",
     padding: "1rem",
-    overflowX: "hidden", // prevent horizontal scroll
+    overflowX: "hidden",
   },
   tableHeader: {
     display: "grid",
@@ -37,7 +32,7 @@ const styles = {
     borderBottom: "1px solid #333",
     gap: "0.5rem",
     fontSize: "0.85rem",
-    wordBreak: "break-word", // prevent overflow text
+    wordBreak: "break-word",
   },
   asset: {
     display: "flex",
@@ -56,14 +51,8 @@ const styles = {
     alignItems: "center",
     overflow: "hidden",
   },
-  label: {
-    fontWeight: "bold",
-  },
-  actionBtns: {
-    display: "flex",
-    gap: "0.5rem",
-    flexWrap: "wrap",
-  },
+  label: { fontWeight: "bold" },
+  actionBtns: { display: "flex", gap: "0.5rem", flexWrap: "wrap" },
   button: {
     backgroundColor: "#4f46e5",
     border: "none",
@@ -73,6 +62,11 @@ const styles = {
     cursor: "pointer",
     fontSize: "0.85rem",
     whiteSpace: "nowrap",
+  },
+  disabledBtn: {
+    backgroundColor: "#444",
+    color: "#aaa",
+    cursor: "not-allowed",
   },
   modal: {
     position: "fixed",
@@ -124,39 +118,24 @@ const styles = {
     cursor: "pointer",
     marginRight: "0.5rem",
   },
-
-  // Responsive styles
-  "@media screen and (max-width: 768px)": {
-    container: {
-      padding: "1rem",
-    },
-    title: {
-      fontSize: "1.5rem",
-      marginBottom: "1rem",
-    },
-    tableHeader: {
-      gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr 2fr",
-      fontSize: "0.75rem",
-      paddingBottom: "0.4rem",
-      gap: "0.25rem",
-    },
-    row: {
-      gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1fr 2fr",
-      fontSize: "0.75rem",
-      padding: "0.5rem 0",
-      gap: "0.25rem",
-    },
-    button: {
-      fontSize: "0.75rem",
-      padding: "0.4rem 0.75rem",
-    },
-    asset: {
-      gap: "0.3rem",
-    },
-    icon: {
-      width: "20px",
-      height: "20px",
-    },
+  ratioBarContainer: {
+    marginTop: "1rem",
+    backgroundColor: "#333",
+    borderRadius: "10px",
+    overflow: "hidden",
+  },
+  ratioBar: (ratio) => ({
+    width: `${Math.min(ratio * 100, 100)}%`,
+    height: "10px",
+    backgroundColor:
+      ratio < 0.75 ? "#4caf50" : ratio < 1 ? "#facc15" : "#e11d48",
+    transition: "width 0.3s",
+  }),
+  ratioText: {
+    fontSize: "0.9rem",
+    marginTop: "0.3rem",
+    textAlign: "center",
+    color: "#ccc",
   },
 };
 
@@ -165,13 +144,17 @@ const Markets = () => {
   const [selectedToken, setSelectedToken] = useState(null);
   const [modalAction, setModalAction] = useState("");
   const [amount, setAmount] = useState("");
+  const [warning, setWarning] = useState("");
+  const [borrowRatio, setBorrowRatio] = useState(0);
 
   const {
-    balance = 0,
-    supplied = 0,
-    setBalance,
-    setSupplied,
-  } = useContext(DemoContext);
+    tokenData: portfolio,
+    supply,
+    borrow,
+    userAddress,
+    getSuppliedAmount,
+    getBorrowedAmount,
+  } = useDemo();
 
   useEffect(() => {
     axios
@@ -179,7 +162,7 @@ const Markets = () => {
         params: {
           vs_currency: "usd",
           order: "market_cap_desc",
-          per_page: 100,
+          per_page: 50,
           page: 1,
           sparkline: false,
         },
@@ -197,46 +180,89 @@ const Markets = () => {
         }));
         setTokenData(data);
       })
-      .catch((error) => {
-        console.error("Error fetching token data: ", error);
-      });
+      .catch((error) => console.error("Error fetching token data:", error));
   }, []);
+
+  useEffect(() => {
+    const updateRatio = async () => {
+      if (!userAddress) return;
+      const supplied = await getSuppliedAmount(userAddress);
+      const borrowed = await getBorrowedAmount(userAddress);
+      if (supplied > 0) {
+        setBorrowRatio(borrowed / (supplied * 1.5));
+      } else {
+        setBorrowRatio(0);
+      }
+    };
+    updateRatio();
+  }, [userAddress]);
 
   const handleAction = (token, action) => {
     setSelectedToken(token);
     setModalAction(action);
     setAmount("");
+    setWarning("");
+
+    if (action === "Borrow" && !token.collateral) {
+      setWarning(
+        "⚠️ This asset is not supported as collateral. Borrowing is discouraged."
+      );
+    }
   };
 
   const closeModal = () => {
     setSelectedToken(null);
     setModalAction("");
     setAmount("");
+    setWarning("");
   };
 
-  const handleSubmit = () => {
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      alert("Please enter a valid amount.");
-      return;
-    }
+  const handleSubmit = async () => {
+    const amt = parseFloat(amount);
+    if (isNaN(amt) || amt <= 0) return alert("Enter a valid amount.");
 
-    if (modalAction === "Supply") {
-      setSupplied((prev) => prev + numericAmount);
-      setBalance((prev) => prev - numericAmount);
-    } else if (modalAction === "Borrow") {
-      setBalance((prev) => prev + numericAmount);
-    }
+    if (!userAddress) return alert("Connect your wallet first.");
 
-    closeModal();
+    try {
+      if (modalAction === "Supply") {
+        await supply(selectedToken.symbol, amt);
+      } else if (modalAction === "Borrow") {
+        const supplied = await getSuppliedAmount(userAddress);
+        const borrowed = await getBorrowedAmount(userAddress);
+        const maxBorrow = supplied * 1.5;
+
+        if (borrowed + amt > maxBorrow) {
+          return alert(
+            `Borrowing limit exceeded.\nYou can only borrow up to 150% of your supplied value.\nCurrent Supplied: ${supplied}, Borrowed: ${borrowed}`
+          );
+        }
+
+        if (!selectedToken.collateral) {
+          const confirmUnsecured = window.confirm(
+            "This token lacks collateral support. Proceed anyway?"
+          );
+          if (!confirmUnsecured) return;
+        }
+
+        await borrow(selectedToken.symbol, amt);
+      }
+      closeModal();
+    } catch (err) {
+      console.error("Error submitting:", err);
+      alert("Transaction failed.");
+    }
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Markets</h2>
-      <p>
-        Balance: ${balance?.toFixed(2)} | Supplied: ${supplied?.toFixed(2)}
-      </p>
+
+      <div style={styles.ratioBarContainer}>
+        <div style={styles.ratioBar(borrowRatio)}></div>
+        <div style={styles.ratioText}>
+          Borrow Ratio: {(borrowRatio * 100).toFixed(2)}%
+        </div>
+      </div>
 
       <div style={styles.table}>
         <div style={styles.tableHeader}>
@@ -248,40 +274,55 @@ const Markets = () => {
           <span>Actions</span>
         </div>
 
-        {tokenData.map((token, index) => (
-          <div style={styles.row} key={index}>
-            <div style={styles.asset} title={token.name}>
-              <div style={styles.icon}>
-                <img
-                  src={token.icon}
-                  alt={token.name}
-                  style={{ width: "20px", height: "20px" }}
-                />
+        {tokenData.map((token, index) => {
+          const isBorrowDisabled = !token.collateral;
+
+          return (
+            <div style={styles.row} key={index}>
+              <div style={styles.asset} title={token.name}>
+                <div style={styles.icon}>
+                  <img
+                    src={token.icon}
+                    alt={token.name}
+                    style={{ width: "20px", height: "20px" }}
+                  />
+                </div>
+                <span style={styles.label}>{token.symbol}</span>
               </div>
-              <span style={styles.label}>{token.symbol}</span>
+              <span>
+                {token.apy} / {token.apr}
+              </span>
+              <span>{token.supplied}</span>
+              <span>{token.borrowed}</span>
+              <span>{token.collateral ? "✅" : "❌"}</span>
+              <div style={styles.actionBtns}>
+                <button
+                  style={styles.button}
+                  onClick={() => handleAction(token, "Supply")}
+                >
+                  Supply
+                </button>
+                <button
+                  style={{
+                    ...styles.button,
+                    ...(isBorrowDisabled && styles.disabledBtn),
+                  }}
+                  onClick={() =>
+                    !isBorrowDisabled && handleAction(token, "Borrow")
+                  }
+                  disabled={isBorrowDisabled}
+                  title={
+                    isBorrowDisabled
+                      ? "This asset can't be used as collateral."
+                      : ""
+                  }
+                >
+                  Borrow
+                </button>
+              </div>
             </div>
-            <span>
-              {token.apy} / {token.apr}
-            </span>
-            <span>{token.supplied}</span>
-            <span>{token.borrowed}</span>
-            <span>{token.collateral ? "✅" : "❌"}</span>
-            <div style={styles.actionBtns}>
-              <button
-                style={styles.button}
-                onClick={() => handleAction(token, "Supply")}
-              >
-                Supply
-              </button>
-              <button
-                style={styles.button}
-                onClick={() => handleAction(token, "Borrow")}
-              >
-                Borrow
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {selectedToken && (
@@ -291,6 +332,17 @@ const Markets = () => {
             <h3>
               {modalAction} {selectedToken.symbol}
             </h3>
+            {warning && (
+              <p
+                style={{
+                  color: "#facc15",
+                  fontSize: "0.85rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                {warning}
+              </p>
+            )}
             <input
               type="number"
               placeholder={`Enter amount to ${modalAction.toLowerCase()}`}

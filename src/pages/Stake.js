@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useContext, useState } from "react";
 import { DemoContext } from "../context/DemoContext";
+import axios from "axios";
 
 const styles = {
   container: {
@@ -58,25 +61,48 @@ const styles = {
 };
 
 const Stake = () => {
-  const { balance, staked, stake, unstake } = useContext(DemoContext);
-
+  const { balance, staked, loadPortfolio, userAddress } =
+    useContext(DemoContext);
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleStake = () => {
+  const handleStake = async () => {
     const num = parseFloat(amount);
     if (!isNaN(num) && num > 0 && num <= balance) {
-      stake(num);
-      setAmount("");
+      try {
+        setLoading(true);
+        await axios.post("http://localhost:5000/api/stake", {
+          userAddress,
+          amount,
+        });
+        setAmount("");
+        await loadPortfolio();
+      } catch (e) {
+        alert("Stake failed: " + e.message);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert("Invalid stake amount.");
     }
   };
 
-  const handleUnstake = () => {
+  const handleUnstake = async () => {
     const num = parseFloat(amount);
     if (!isNaN(num) && num > 0 && num <= staked) {
-      unstake(num);
-      setAmount("");
+      try {
+        setLoading(true);
+        await axios.post("http://localhost:5000/api/unstake", {
+          userAddress,
+          amount,
+        });
+        setAmount("");
+        await loadPortfolio();
+      } catch (e) {
+        alert("Unstake failed: " + e.message);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert("Invalid unstake amount.");
     }
@@ -101,13 +127,22 @@ const Stake = () => {
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Enter amount"
           style={styles.input}
+          disabled={loading}
         />
 
         <div style={styles.buttonGroup}>
-          <button style={styles.button} onClick={handleStake}>
+          <button
+            style={styles.button}
+            onClick={handleStake}
+            disabled={loading}
+          >
             Stake
           </button>
-          <button style={styles.button} onClick={handleUnstake}>
+          <button
+            style={styles.button}
+            onClick={handleUnstake}
+            disabled={loading}
+          >
             Unstake
           </button>
         </div>

@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import { useDemo } from "../context/DemoContext";
 
 const styles = {
   container: {
@@ -59,8 +62,13 @@ const Earn = () => {
     { pool: "DAI Flex Pool", apy: "2.85%", balance: 0, symbol: "DAI" },
   ]);
 
+  const { userAddress } = useDemo();
+
   const handleAction = (index, type) => {
-    const amount = parseFloat(prompt(`Enter amount to ${type.toLowerCase()}:`));
+    if (!userAddress) return alert("Please connect your wallet first.");
+
+    const input = prompt(`Enter amount to ${type.toLowerCase()}:`);
+    const amount = parseFloat(input);
     if (isNaN(amount) || amount <= 0) return alert("Invalid amount!");
 
     setOpportunities((prev) =>

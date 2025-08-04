@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useContext } from "react";
+import { DemoContext } from "../context/DemoContext";
 
 const styles = {
   container: {
     padding: "1rem 1.5rem",
     color: "#fff",
     maxWidth: "100vw",
-    overflowX: "hidden", // prevent horizontal scroll globally
+    overflowX: "hidden",
   },
   title: {
     fontSize: "2rem",
@@ -17,17 +17,17 @@ const styles = {
     display: "flex",
     gap: "1rem",
     marginBottom: "2rem",
-    flexWrap: "wrap", // wrap on small screens
+    flexWrap: "wrap",
     justifyContent: "center",
   },
   card: {
-    flex: "1 1 220px", // flexible basis + grow + shrink
+    flex: "1 1 220px",
     maxWidth: "320px",
     backgroundColor: "#1f1f2e",
     borderRadius: "12px",
     padding: "1.5rem",
     boxShadow: "0 0 8px rgba(0,0,0,0.5)",
-    minWidth: 0, // prevent shrinking overflow
+    minWidth: 0,
   },
   cardTitle: {
     fontSize: "0.875rem",
@@ -48,7 +48,7 @@ const styles = {
     backgroundColor: "#1f1f2e",
     borderRadius: "10px",
     padding: "1rem",
-    overflowX: "hidden", // no horizontal scroll on table container
+    overflowX: "hidden",
   },
   tableHeader1: {
     display: "flex",
@@ -57,62 +57,40 @@ const styles = {
     borderBottom: "1px solid #444",
     fontSize: "0.85rem",
     color: "#aaa",
-    flexWrap: "wrap", // wrap header on small screen
+    flexWrap: "wrap",
   },
   tableRow: {
     display: "flex",
     justifyContent: "space-between",
     padding: "0.5rem 0",
     borderBottom: "1px solid #333",
-    flexWrap: "wrap", // wrap row on small screen
+    flexWrap: "wrap",
   },
   cell: {
-    flex: "1 1 100px", // flexible cells, min 100px
+    flex: "1 1 100px",
     marginBottom: "0.4rem",
     minWidth: 0,
   },
 };
 
 const Dashboard = () => {
-  const [tokenData, setTokenData] = useState([]);
+  const { suppliedTokens, borrowedTokens, tokenData } = useContext(DemoContext);
 
-  useEffect(() => {
-    axios
-      .get("https://api.coingecko.com/api/v3/coins/markets", {
-        params: {
-          vs_currency: "usd",
-          ids: "bitcoin,ethereum,binancecoin,xrp,cardano,dogecoin,solana,litecoin,polygon,chainlink",
-        },
-      })
-      .then((response) => {
-        const data = response.data.map((token) => ({
-          symbol: token.symbol.toUpperCase(),
-          name: token.name,
-          apy: `${(Math.random() * (20 - 1) + 1).toFixed(2)}%`,
-          apr: `${(Math.random() * (10 - 0.5) + 0.5).toFixed(2)}%`,
-          supplied: parseFloat((Math.random() * (200 - 50) + 50).toFixed(2)),
-          borrowed: parseFloat((Math.random() * (50 - 5) + 5).toFixed(2)),
-          collateral: Math.random() > 0.5,
-        }));
-        setTokenData(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching token data: ", error);
-      });
-  }, []);
+  const totalSupplied = suppliedTokens
+    ?.reduce((sum, t) => sum + parseFloat(t.supplied || 0), 0)
+    .toFixed(2);
 
-  const totalSupplied = tokenData
-    .reduce((sum, t) => sum + t.supplied, 0)
+  const totalBorrowed = borrowedTokens
+    ?.reduce((sum, t) => sum + parseFloat(t.borrowed || 0), 0)
     .toFixed(2);
-  const totalBorrowed = tokenData
-    .reduce((sum, t) => sum + t.borrowed, 0)
-    .toFixed(2);
+
   const netWorth = (totalSupplied - totalBorrowed).toFixed(2);
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Dashboard</h2>
 
+      {/* Cards */}
       <div style={styles.cardRow}>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Net Worth</div>
@@ -124,10 +102,11 @@ const Dashboard = () => {
         </div>
         <div style={styles.card}>
           <div style={styles.cardTitle}>Markets</div>
-          <div style={styles.cardValue}>{tokenData.length} available</div>
+          <div style={styles.cardValue}>{tokenData?.length || 0} available</div>
         </div>
       </div>
 
+      {/* Supplies */}
       <div>
         <h3 style={styles.sectionTitle}>Your Supplies</h3>
         <div style={styles.table}>
@@ -136,12 +115,25 @@ const Dashboard = () => {
             <span style={styles.cell}>Collateral</span>
             <span style={styles.cell}>APY</span>
           </div>
-          <div style={styles.tableRow}>
-            <span style={styles.cell}>No supply positions</span>
-          </div>
+          {suppliedTokens?.length > 0 ? (
+            suppliedTokens.map((token, index) => (
+              <div style={styles.tableRow} key={index}>
+                <span style={styles.cell}>{token.symbol}</span>
+                <span style={styles.cell}>
+                  {token.collateral ? "✅" : "❌"}
+                </span>
+                <span style={styles.cell}>{token.apy}</span>
+              </div>
+            ))
+          ) : (
+            <div style={styles.tableRow}>
+              <span style={styles.cell}>No supply positions</span>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Borrows */}
       <div>
         <h3 style={styles.sectionTitle}>Your Borrows</h3>
         <div style={styles.table}>
@@ -150,12 +142,27 @@ const Dashboard = () => {
             <span style={styles.cell}>APY , APR</span>
             <span style={styles.cell}>Collateral</span>
           </div>
-          <div style={styles.tableRow}>
-            <span style={styles.cell}>No borrowing positions</span>
-          </div>
+          {borrowedTokens?.length > 0 ? (
+            borrowedTokens.map((token, index) => (
+              <div style={styles.tableRow} key={index}>
+                <span style={styles.cell}>{token.symbol}</span>
+                <span style={styles.cell}>
+                  {token.apy} , {token.apr}
+                </span>
+                <span style={styles.cell}>
+                  {token.collateral ? "✅" : "❌"}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div style={styles.tableRow}>
+              <span style={styles.cell}>No borrowing positions</span>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Markets */}
       <div>
         <h3 style={styles.sectionTitle}>Markets</h3>
         <div style={styles.table}>
@@ -166,15 +173,23 @@ const Dashboard = () => {
             <span style={styles.cell}>Deposit APY</span>
             <span style={styles.cell}>Collateral</span>
           </div>
-          {tokenData.map((token, index) => (
-            <div style={styles.tableRow} key={index}>
-              <span style={styles.cell}>{token.symbol}</span>
-              <span style={styles.cell}>{token.supplied}M</span>
-              <span style={styles.cell}>{token.borrowed}M</span>
-              <span style={styles.cell}>{token.apy}</span>
-              <span style={styles.cell}>{token.collateral ? "✅" : "❌"}</span>
+          {tokenData?.length > 0 ? (
+            tokenData.map((token, index) => (
+              <div style={styles.tableRow} key={index}>
+                <span style={styles.cell}>{token.symbol}</span>
+                <span style={styles.cell}>{token.supplied}M</span>
+                <span style={styles.cell}>{token.borrowed}M</span>
+                <span style={styles.cell}>{token.apy}</span>
+                <span style={styles.cell}>
+                  {token.collateral ? "✅" : "❌"}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div style={styles.tableRow}>
+              <span style={styles.cell}>No market data available</span>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
