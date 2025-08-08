@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract Rewards is ERC20Capped, ERC20Burnable, Ownable, ReentrancyGuard {
+contract RewardsToken is ERC20Capped, ERC20Burnable, Ownable, ReentrancyGuard {
     mapping(address => uint256) public rewards;
 
     constructor(
