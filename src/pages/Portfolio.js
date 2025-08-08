@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useDemo } from "@/context/DemoContext";
+import { useDemo } from "../context/DemoContext";
 
 const cellStyle = {
   padding: "12px 20px",

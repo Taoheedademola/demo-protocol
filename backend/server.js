@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 
 import supplyRoutes from "./routes/supplyRoutes.js";
 import loanRoutes from "./routes/loanRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
 import rewardRoutes from "./routes/rewardRoutes.js";
+import portfolioRoutes from "./routes/portfolioRoutes.js";
 
 dotenv.config();
 
@@ -17,8 +17,8 @@ app.use(express.json());
 // Routes
 app.use("/api/supply", supplyRoutes);
 app.use("/api/loan", loanRoutes);
-app.use("/api/user", userRoutes);
 app.use("/api/rewards", rewardRoutes);
+app.use("/api/portfolio", portfolioRoutes);
 
 app.get("/", (req, res) => res.send("Demo Protocol Backend Running 🚀"));
 

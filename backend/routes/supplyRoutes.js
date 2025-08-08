@@ -1,5 +1,4 @@
-// backend/routes/supplyRoutes.js
-
+// ✅ supplyRoutes.js (Express Route)
 import express from "express";
 import { supplyTokens, withdrawTokens } from "../controllers/loanController.js";
 

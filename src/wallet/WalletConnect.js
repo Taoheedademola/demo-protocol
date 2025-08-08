@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { useDemo } from "@/context/DemoContext";
+import { useDemo } from "../context/DemoContext";
 
 const WalletConnect = () => {
   const { userAddress, connectWallet, disconnectWallet } = useDemo();

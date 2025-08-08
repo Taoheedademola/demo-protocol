@@ -68,7 +68,7 @@ const Stake = () => {
 
   const handleStake = async () => {
     const num = parseFloat(amount);
-    if (!isNaN(num) && num > 0 && num <= balance) {
+    if (!isNaN(num) && num > 0 && num <= (balance ?? 0)) {
       try {
         setLoading(true);
         await axios.post("http://localhost:5000/api/stake", {
@@ -89,7 +89,7 @@ const Stake = () => {
 
   const handleUnstake = async () => {
     const num = parseFloat(amount);
-    if (!isNaN(num) && num > 0 && num <= staked) {
+    if (!isNaN(num) && num > 0 && num <= (staked ?? 0)) {
       try {
         setLoading(true);
         await axios.post("http://localhost:5000/api/unstake", {
@@ -114,10 +114,10 @@ const Stake = () => {
 
       <div style={styles.stakeBox}>
         <label style={styles.label}>
-          Wallet Balance: {balance.toFixed(2)} $DEMO
+          Wallet Balance: {(balance ?? 0).toFixed(2)} $DEMO
         </label>
         <label style={styles.label}>
-          Currently Staked: {staked.toFixed(2)} $DEMO
+          Currently Staked: {(staked ?? 0).toFixed(2)} $DEMO
         </label>
 
         <label style={styles.label}>Amount to Stake/Unstake</label>

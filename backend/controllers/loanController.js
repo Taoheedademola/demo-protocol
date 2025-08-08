@@ -6,14 +6,13 @@ import { web3Provider } from "../utils/provider.js";
 
 export const supplyTokens = async (req, res) => {
   try {
-    const { userAddress, amount } = req.body;
-    if (!userAddress || !amount)
-      return res.status(400).json({ error: "Missing fields" });
+    const { amount } = req.body;
+    if (!amount) return res.status(400).json({ error: "Missing amount field" });
 
-    const lendingVault = getContract("LendingVault");
-    const parsedAmount = ethers.utils.parseEther(amount.toString());
+    const contract = getContract("LendingVault"); // Backend signer
+    const parsedAmount = ethers.parseEther(amount.toString());
 
-    const tx = await lendingVault.supply(parsedAmount, { from: userAddress });
+    const tx = await contract.supply(parsedAmount);
     await tx.wait();
 
     res.status(200).json({ message: "Tokens supplied", txHash: tx.hash });
@@ -25,14 +24,13 @@ export const supplyTokens = async (req, res) => {
 
 export const withdrawTokens = async (req, res) => {
   try {
-    const { userAddress, amount } = req.body;
-    if (!userAddress || !amount)
-      return res.status(400).json({ error: "Missing fields" });
+    const { amount } = req.body;
+    if (!amount) return res.status(400).json({ error: "Missing amount field" });
 
-    const lendingVault = getContract("LendingVault");
-    const parsedAmount = ethers.utils.parseEther(amount.toString());
+    const contract = getContract("LendingVault"); // Backend signer
+    const parsedAmount = ethers.parseEther(amount.toString());
 
-    const tx = await lendingVault.withdraw(parsedAmount, { from: userAddress });
+    const tx = await contract.withdraw(parsedAmount);
     await tx.wait();
 
     res.status(200).json({ message: "Tokens withdrawn", txHash: tx.hash });
